@@ -8,6 +8,12 @@
                 <div class="panel-heading">Login</div>
 
                 <div class="panel-body">
+                    <div class="alert alert-danger" style="display: none;">
+                        <ul id="errorcontainer">
+
+                        </ul>
+                    </div>
+
                     <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
@@ -51,7 +57,7 @@
 
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary login"  >
                                     Login
                                 </button>
 
@@ -66,4 +72,50 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('footer_js')
+
+<script>
+    var weburl = '{{ url("/") }}';
+
+    $(document).on('click','.login',function(e){
+        e.preventDefault();
+
+        var formData={
+            'email' : $('#email').val(),
+            'password' : $('#password').val(),
+            'remember' : $('#remember').val()
+        }
+
+        $.ajaxSetup({
+            headers:{
+                'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
+            }
+        })
+
+        $.ajax({
+            type:'POST',
+            data: formData,
+            url: weburl+'/login',
+            dataType:'json',
+            success:function(data){ 
+                $('.alert').hide();
+                $('#errorcontainer').html('');
+
+                if(data.errors) {
+                   //console.log(data);
+                   $.each(data.errors,function(key,value){
+                        $('#errorcontainer').append('<li>'+value+'</li>');
+                   });
+                   $('.alert').show();
+                } else if(data.success){
+                    window.location.href = weburl+'/articles';    
+                }
+            }
+        });
+
+    });
+</script>
+
 @endsection

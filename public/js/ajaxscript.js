@@ -1,4 +1,4 @@
-    var url = "http://localhost/laravel55/public/productajaxCRUD";
+    var url = "http://localhost/laravel54/public/productajaxCRUD";
     //display modal form for product editing
     $(document).on('click', '.open_modal', function() {
         var product_id = $(this).val();

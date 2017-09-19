@@ -6,6 +6,11 @@ use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
+use Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Input;
 
 class RegisterController extends Controller
 {
@@ -52,6 +57,38 @@ class RegisterController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
+    }
+
+    public function register(Request $request)
+    {
+        if($request->ajax())
+        {
+            $validator = $this->validator($request->all());
+            if($validator->fails())
+            {
+                return Response::json(['errors' => $validator->getMessageBag()->toArray()]);
+            }
+            else
+            {
+                event(new Registered($user = $this->create($request->all())));
+                //$user = $this->create($request->all());
+                $this->guard()->login($user);
+                return Response::json(array('success' => ['Registered'],'redirect' => '/articles'));
+            }   
+        }
+        else
+        {
+            $validator = $this->validator($request->all())->validate();
+
+            event(new Registered($user = $this->create($request->all())));
+
+            $this->guard()->login($user);
+
+            return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
+        }
+
+        
     }
 
     /**

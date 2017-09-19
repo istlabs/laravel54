@@ -8,6 +8,11 @@
                 <div class="panel-heading">Register</div>
 
                 <div class="panel-body">
+                    <div class="alert alert-danger" style="display :none;">
+                        <ul id="errorcontainer">
+
+                        </ul>
+                    </div>
                     <form class="form-horizontal" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
 
@@ -63,7 +68,7 @@
 
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary register">
                                     Register
                                 </button>
                             </div>
@@ -75,3 +80,48 @@
     </div>
 </div>
 @endsection
+
+@section('footer_js')
+<script>
+    var weburl = '{{ url('/') }}';
+    $(document).on('click', '.register', function(e) {
+        e.preventDefault();
+        $.ajaxSetup({
+            headers:{
+                'X-CSRF-TOKEN' : $('meta[name="csrf-token"]').attr('content')
+            }
+        })
+        var formData={
+            'name' : $('#name').val(),
+            'email' : $('#email').val(),
+            'password' : $('#password').val(),
+            'password_confirmation' : $('#password-confirm').val()
+        }
+        $.ajax({
+            type:'POST',
+            url: weburl+'/register',
+            data:formData,
+            dataType: 'json',
+            success:function(data){
+                $('.alert').hide();
+                $('#errorcontainer').html('');
+                response = data;
+                if(response.errors)
+                {
+                    $.each(response.errors, function(key,value){
+                        $('#errorcontainer').append('<li>'+value+'</li<');
+                    });
+                    $('.alert').show();
+                }
+                else if(response.success)
+                {
+                    window.location.href=weburl+response.redirect;
+                }
+            }
+
+        });
+    });
+</script>
+@endsection
+
+
