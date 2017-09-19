@@ -47,12 +47,3 @@ Route::delete('productajaxCRUD/{product_id?}',function($product_id){
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-
-Route::group(['prefix' => 'admin', 'namespace' => 'admin'],
-    function()
-    {
-        Route::get('/', 'DashboardController@index');
-        Route::get('login', 'DashboardController@getLogin');
-        Route::post('login', 'CustomAuth@postLogin');
-    }
-);
